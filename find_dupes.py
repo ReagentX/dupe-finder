@@ -26,7 +26,7 @@ def walk_from_path(path=ROOT):
     for item in files:
         if item.is_dir():
             dirs.append(item)
-        elif item.is_file():
+        elif item.is_file() and item.name[0] != '.' and item.stat().st_size > 0:
             hash = hash_file(item.path)
             if hash in hash_dict:
                 print(f'Collision!', item.path)
