@@ -18,22 +18,29 @@ def hash_file(path):
             sha256.update(data)
     return sha256.hexdigest()
 
-
-def walk_from_path():
-    files = os.scandir(ROOT)
+def walk_from_path(path=ROOT):
+    files = os.scandir(path)
     dirs = []
+    dupes = []
     for item in files:
         if item.is_dir():
             dirs.append(item)
         elif item.is_file():
             hash = hash_file(item.path)
             if hash in hash_dict:
-                # Handle collision
+                print(f'Collision!', item.path)
+                if item.stat().st_birthtime > hash_dict[hash][0]:
+                    print('This version is newer than the one in the dict; add to dupes list')
+                    dupes.append(item.path)
+                elif item.stat().st_birthtime < hash_dict[hash][0]:
+                    print('The earlier seen version is newer; add that to the dupes list')
+                    dupes.append(hash_dict[hash].path)
+                    hash_dict[hash] = (item.stat().st_birthtime, item.path)
                 pass
             else:
-                hash_dict[hash] = item.stat().st_birthtime
-    print(dirs)
-    print(hash_dict)
+                hash_dict[hash] = (item.stat().st_birthtime, item.path)
+    for dir in dirs:
+        walk_from_path(dir)
 
 if __name__ == '__main__':
     walk_from_path()
