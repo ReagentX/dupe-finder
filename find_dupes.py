@@ -6,6 +6,7 @@ import hashlib
 ROOT = '.'  # Just start at current folder for now
 BUFFER_SIZE = 512 * 1024  # Size of a file to read into memory at once
 hash_dict = {}  # Place to store our hashes and dates like { hex_digest: date, ..., }
+dupes = []
 
 
 def hash_file(path):
@@ -21,7 +22,6 @@ def hash_file(path):
 def walk_from_path(path=ROOT):
     files = os.scandir(path)
     dirs = []
-    dupes = []
     for item in files:
         if item.is_dir():
             dirs.append(item)
@@ -41,8 +41,10 @@ def walk_from_path(path=ROOT):
                 hash_dict[hash] = (item.stat().st_birthtime, item.path)
     for dir in dirs:
         walk_from_path(dir)
-    return dupes
+
 
 if __name__ == '__main__':
-    data = walk_from_path()
-    print(data, file='out.txt')
+    walk_from_path()
+    with open('out.txt', 'w') as f:
+        for i in dupes:
+            print(i, file=f)
