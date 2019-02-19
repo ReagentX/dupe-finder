@@ -19,6 +19,7 @@ def hash_file(path):
             sha256.update(data)
     return sha256.hexdigest()
 
+
 def walk_from_path(path=ROOT):
     files = os.scandir(path)
     dirs = []
